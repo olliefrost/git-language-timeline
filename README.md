@@ -1,40 +1,98 @@
-# Language Usage Timeline
+# Git Language Timeline
 
-This tool generates a time-series graph showing how the composition of a Git
-repository changes over time, measured as the **percentage of files per
-programming language** at each commit.
+Visualise how programming language usage changes over time in a Git repository.
 
-Each language is plotted as a line, allowing you to see when languages are
-introduced, grow, or decline throughout the project’s history.
+This project provides two scripts that analyse a repository’s commit history and plot language usage as a percentage over time.
 
 ---
 
-## What This Shows
+## Repository Structure
 
-- One line per language
-- X-axis: commits (from first commit to latest)
-- Y-axis: percentage of files in the repository
-- Languages are grouped by file extension:
-  - C (`.c`, `.h`)
-  - Haskell (`.hs`)
-  - Python (`.py`)
-  - Java (`.java`)
-  - Verilog (`.v`, `.vcd`, `.vvp`)
+```
 
-This focuses on **file counts**, not lines of code.
+git-language-timeline/
+├── scripts/
+│   ├── language_timeline_files.py   # file-count based metric
+│   └── language_timeline_loc.py     # line-of-code based metric
+├── requirements.txt
+└── README.md
+
+````
 
 ---
 
-## Requirements
+## Metrics
 
-- Python 3.9+
-- Git
-- Python packages:
-  - `matplotlib`
+Two different metrics are supported.
 
-Install dependencies in a virtual environment:
+### File Count
+
+Measures language usage by the number of tracked files.
+
+- Each file counts equally
+- Fast to compute
+- Good for structural trends
+
+Run:
+```bash
+python scripts/language_timeline_files.py
+````
+
+---
+
+### Lines of Code (LOC)
+
+Measures language usage by counting non-empty lines of code.
+
+* More representative of code volume
+* Slower to compute
+* Comment lines are included
+
+Run:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install matplotlib
+python scripts/language_timeline_loc.py
+```
+
+---
+
+## Installation
+
+It is recommended to use a virtual environment.
+
+```bash
+python3 -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+```
+
+---
+
+## Usage
+
+Run the scripts from the **root of the repository you want to analyse**:
+
+```bash
+python scripts/language_timeline_files.py
+# or
+python scripts/language_timeline_loc.py
+```
+
+A matplotlib graph will open showing language usage across the full commit history.
+
+---
+
+## Notes
+
+* The repository must be a Git repository
+* Binary and unreadable files are ignored
+* All tracked files are included
+* The working tree is restored after execution
+
+---
+
+## License
+
+MIT
+
+
