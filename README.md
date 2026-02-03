@@ -61,8 +61,13 @@ python scripts/language_timeline_loc.py
 It is recommended to use a virtual environment.
 
 ```bash
+# Create virtual environment
 python3 -m venv env
+
+# Activate virtual environment
 source env/bin/activate
+
+# Install dependencies from requirements.txt
 pip install -r requirements.txt
 ```
 
