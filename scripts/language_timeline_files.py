@@ -77,10 +77,32 @@ IGNORED_PATHS = [
 
 LANGUAGES = sorted(list(set(EXTENSIONS.values())))
 
-# Get commits from oldest to newest
-commits = subprocess.check_output(
-    ["git", "rev-list", "--reverse", "HEAD"]
+import argparse
+from datetime import datetime
+
+# Parse arguments
+parser = argparse.ArgumentParser(description="Visualise language usage over time (File Count).")
+parser.add_argument(
+    "--mode",
+    choices=["commits", "time"],
+    default="commits",
+    help="X-axis mode: 'commits' (default) or 'time'",
+)
+args = parser.parse_args()
+
+# Get commits from oldest to newest with timestamps
+raw_commits = subprocess.check_output(
+    ["git", "log", "--reverse", "--format=%H %at", "HEAD"]
 ).decode().splitlines()
+
+commits = []
+timestamps = []
+
+for line in raw_commits:
+    parts = line.split()
+    if len(parts) >= 2:
+        commits.append(parts[0])
+        timestamps.append(int(parts[1]))
 
 history = {lang: [] for lang in LANGUAGES}
 
@@ -123,12 +145,21 @@ subprocess.run(["git", "checkout", "--quiet", "main"])
 # Plot results
 plt.figure(figsize=(12, 6))
 
+# Prepare X-axis data
+if args.mode == "time":
+    x_values = [datetime.fromtimestamp(ts) for ts in timestamps]
+    plt.xlabel("Date")
+    plt.gcf().autofmt_xdate()
+else:
+    num_points = len(next(iter(history.values()))) if history else 0
+    x_values = range(num_points)
+    plt.xlabel("Commits")
+
 for lang, values in history.items():
     if max(values) > 0:
-        plt.plot(values, label=lang)
+        plt.plot(x_values, values, label=lang)
 
 plt.title("Language Usage Over Time")
-plt.xlabel("Commits")
 plt.ylabel("Percentage of Files")
 plt.legend()
 plt.tight_layout()

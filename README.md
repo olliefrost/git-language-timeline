@@ -78,12 +78,23 @@ pip install -r requirements.txt
 Run the scripts from the **root of the repository you want to analyse**:
 
 ```bash
+# Default (commits on X-axis)
 python scripts/language_timeline_files.py
-# or
-python scripts/language_timeline_loc.py
+
+# Time-based (Date on X-axis)
+python scripts/language_timeline_files.py --mode time
+
+# Lines of Code metric
+python scripts/language_timeline_loc.py --mode time
 ```
 
 A matplotlib graph will open showing language usage across the full commit history.
+
+### Arguments
+
+- `--mode`: X-axis mode.
+    - `commits` (default): Linear commit history (equally spaced).
+    - `time`: Real time (dates).
 
 ---
 

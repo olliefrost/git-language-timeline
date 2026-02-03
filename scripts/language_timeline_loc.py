@@ -85,10 +85,33 @@ def count_non_empty_lines(path):
     except OSError:
         return 0
 
-# Get commits oldest → newest
-commits = subprocess.check_output(
-    ["git", "rev-list", "--reverse", "HEAD"]
+import argparse
+from datetime import datetime
+
+# Parse arguments
+parser = argparse.ArgumentParser(description="Visualise language usage over time (LOC).")
+parser.add_argument(
+    "--mode",
+    choices=["commits", "time"],
+    default="commits",
+    help="X-axis mode: 'commits' (default) or 'time'",
+)
+args = parser.parse_args()
+
+# Get commits oldest → newest with timestamps
+# Format: "Hash Timestamp"
+raw_commits = subprocess.check_output(
+    ["git", "log", "--reverse", "--format=%H %at", "HEAD"]
 ).decode().splitlines()
+
+commits = []
+timestamps = []
+
+for line in raw_commits:
+    parts = line.split()
+    if len(parts) >= 2:
+        commits.append(parts[0])
+        timestamps.append(int(parts[1]))
 
 history = {lang: [] for lang in LANGUAGES}
 
@@ -134,12 +157,25 @@ subprocess.run(["git", "checkout", "--quiet", "main"])
 # Plot
 plt.figure(figsize=(12, 6))
 
+# Prepare X-axis data
+if args.mode == "time":
+    x_values = [datetime.fromtimestamp(ts) for ts in timestamps]
+    plt.xlabel("Date")
+    plt.gcf().autofmt_xdate()
+else:
+    # Use commit index (0, 1, 2, ...)
+    # Alternatively, could use len(history[some_lang]) range
+    # Since all langs have same length, any valid key works. 
+    # But safe way:
+    num_points = len(next(iter(history.values()))) if history else 0
+    x_values = range(num_points)
+    plt.xlabel("Commits")
+
 for lang, values in history.items():
     if max(values) > 0:
-        plt.plot(values, label=lang)
+        plt.plot(x_values, values, label=lang)
 
 plt.title("Language Usage Over Time (Lines of Code)")
-plt.xlabel("Commits")
 plt.ylabel("Percentage of LOC")
 plt.legend()
 plt.tight_layout()
