@@ -5,22 +5,77 @@ import os
 
 # File extension → language mapping
 EXTENSIONS = {
+    # C / C++
     ".c": "C",
     ".h": "C",
+    ".cpp": "C++",
+    ".hpp": "C++",
+    ".cc": "C++",
+    ".cxx": "C++",
 
+    # C#
+    ".cs": "C#",
+
+    # CSS
+    ".css": "CSS",
+
+    # Go
+    ".go": "Go",
+
+    # Haskell
     ".hs": "Haskell",
 
+    # HTML
+    ".html": "HTML",
+    ".htm": "HTML",
+
+    # Java / Kotlin
+    ".java": "Java",
+    ".kt": "Kotlin",
+    ".kts": "Kotlin",
+
+    # JavaScript / TypeScript
+    ".js": "JavaScript",
+    ".jsx": "JavaScript",
+    ".mjs": "JavaScript",
+    ".ts": "TypeScript",
+    ".tsx": "TypeScript",
+
+    # Lua
+    ".lua": "Lua",
+
+    # PHP
+    ".php": "PHP",
+
+    # Python
     ".py": "Python",
 
-    ".java": "Java",
+    # Ruby
+    ".rb": "Ruby",
 
-    # Verilog and related files
+    # Rust
+    ".rs": "Rust",
+
+    # Scala
+    ".scala": "Scala",
+
+    # Shell
+    ".sh": "Shell",
+
+    # Swift
+    ".swift": "Swift",
+
+    # Verilog
     ".v": "Verilog",
-    ".vcd": "Verilog",
-    ".vvp": "Verilog",
 }
 
-LANGUAGES = ["C", "Haskell", "Python", "Java", "Verilog"]
+# Paths to ignore (e.g. "vendor/", "tests/file.py")
+# These are checked against the relative path from the repo root.
+IGNORED_PATHS = [
+    # "vendor/lib/", 
+]
+
+LANGUAGES = sorted(list(set(EXTENSIONS.values())))
 
 def count_non_empty_lines(path):
     """Count non-empty lines in a text file."""
@@ -52,9 +107,16 @@ for commit in commits:
             continue
 
         for f in files:
+            path = os.path.join(root, f)
+            # Remove ./ prefix for cleaner matching if present
+            rel_path = os.path.normpath(path)
+            
+            # Check ignored paths
+            if any(rel_path.startswith(os.path.normpath(i)) for i in IGNORED_PATHS):
+                continue
+                
             ext = os.path.splitext(f)[1]
             if ext in EXTENSIONS:
-                path = os.path.join(root, f)
                 lines = count_non_empty_lines(path)
                 lang = EXTENSIONS[ext]
 

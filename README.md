@@ -82,12 +82,28 @@ A matplotlib graph will open showing language usage across the full commit histo
 
 ---
 
+## Configuration
+    
+### Ignoring Paths
+
+You can configure paths to ignore (e.g. `vendor/`, `tests/`) by editing the `IGNORED_PATHS` list at the top of either script:
+
+```python
+IGNORED_PATHS = [
+    "vendor/",
+    "tests/legacy_code.c",
+]
+```
+
+These paths are checked against the file path relative to the repository root.
+
+---
+
 ## Notes
 
 * The repository must be a Git repository
+* The script must be run from the root of the repository
 * Binary and unreadable files are ignored
-* All tracked files are included
-* The working tree is restored after execution
 
 ---
 
@@ -95,4 +111,4 @@ A matplotlib graph will open showing language usage across the full commit histo
 
 MIT
 
-
+---
